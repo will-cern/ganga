@@ -43,6 +43,17 @@ path_prepend PYTHONPATH "$(ext_root)/stomputil/$(stomputil)/noarch/python"
 path_prepend PYTHONPATH "$(ext_root)/paramiko/$(paramiko)/noarch/lib/python2.5/site-packages"
 
 #########################################################################
+# PYTHONPATH figleaf
+
+path_prepend PYTHONPATH "$(ext_root)/figleaf/$(figleaf)/noarch"
+
+#########################################################################
+# PYTHONPATH PYTF
+
+set PYTF_TOP_DIR "$(ext_root)/PYTF/$(PYTF)/noarch"
+path_prepend PYTHONPATH "$(PYTF_TOP_DIR)"
+
+#########################################################################
 # PYTHONPATH ipython
 
 path_prepend PYTHONPATH "$(ext_root)/ipython/$(ipython)/noarch/lib/python"
