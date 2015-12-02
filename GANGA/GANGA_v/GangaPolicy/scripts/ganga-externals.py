@@ -7,6 +7,8 @@ externals_noarch = [['httplib2', '0.8'],
                     ['google-api-python-client', '1.1'],
                     ['paramiko', '1.7.3'],
                     ['stomputil','2.4'],
+                    ['figleaf', '0.6'],
+                    ['PYTF','1.6'],
                     ['ipython', '1.2.1']]
 
 
