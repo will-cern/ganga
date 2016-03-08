@@ -32,7 +32,7 @@ class RegistryError(GangaException):
 
 class RegistryAccessError(RegistryError):
 
-    """ This error is raised if the request is valid in principle, 
+    """ This error is raised if the request is valid in principle,
         but the Registry cannot be accessed at the moment."""
 
     def __init__(self, what=''):
@@ -126,10 +126,7 @@ class IncompleteObject(GangaObject):
         self.registry._lock.acquire()
         try:
 
-            if self.registry.checkShouldFlush():
-                self.registry.repository.flush([self.registry._objects[self.id]])
-                self.registry._load([self.id])
-            if self.id not in self.registry_loaded_ids:
+            if self.id not in self.registry._loaded_ids:
                 self.registry._load([self.id])
                 self.registry._loaded_ids.append(self.id)
             logger.debug("Successfully reloaded '%s' object #%i!" % (self.registry.name, self.id))
@@ -240,7 +237,6 @@ class Registry(object):
         self._lock = threading.RLock()
         self.hard_lock = {}
         self.changed_ids = {}
-        self._autoFlush = True
 
         self._loaded_ids = []
 
@@ -249,25 +245,8 @@ class Registry(object):
         self.repository = None
         self._objects = None
         self._incomplete_objects = None
-
-        ## Record the last dirty and flush times to determine whether an idividual flush command should flush
-        ## Logc to use these is implemented in checkShouldFlush()
-        self._dirtyModTime = None
-        self._flushLastTime = None
-        self._dirty_max_timeout = dirty_max_timeout
-        self._dirty_min_timeout = dirty_min_timeout
-
-
         self._inprogressDict = {}
-
-
-        self.shouldReleaseRun = True
-
         self.flush_thread = None
-
-#        self.releaseThread = threading.Thread(target=self.trackandRelease, args=())
-#        self.releaseThread.daemon = True
-#        self.releaseThread.start()
 
     def hasStarted(self):
         return self._hasStarted
@@ -320,87 +299,6 @@ class Registry(object):
     def updateLocksNow(self):
         logger.debug("updateLocksNow")
         self.repository.updateLocksNow()
-
-    def trackandRelease(self):
-
-        while self.shouldReleaseRun is True:
-
-            ## Needed import for shutdown
-            import time
-            timeNow = time.time()
-
-            modTime = self._dirtyModTime
-            if modTime is None:
-                modTime = timeNow
-            dirtyTime = self._flushLastTime
-            if dirtyTime is None:
-                dirtyTime = timeNow
-
-            delta_1 = abs(timeNow - modTime)
-            delta_2 = abs(timeNow - dirtyTime)
-
-            if delta_1 > self._dirty_max_timeout and delta_2 > self._dirty_max_timeout:
-
-                 flush_thread = threading.Thread(target=self._flush, args=())
-                 flush_thread.run()
-    
-            time.sleep(0.5)
-
-    def turnOffAutoFlushing(self):
-        self._autoFlush = False
-
-    def turnOnAutoFlushing(self):
-        self._autoFlush = True
-
-    def isAutoFlushEnabled(self):
-        return self._autoFlush
-
-    def checkDirtyFlushtimes(self, timeNow):
-        self._dirtyModTime = timeNow
-        if self._flushLastTime is None:
-            self._flushLastTime = timeNow
-
-    @synchronised
-    def checkShouldFlush(self):
-        logger.debug("checkShouldFlush")
-
-        timeNow = time.time()
-
-        self.checkDirtyFlushtimes(timeNow)
-
-        timeDiff = (self._dirtyModTime - self._flushLastTime)
-
-        if timeDiff > self._dirty_min_timeout:
-            hasMinTimedOut = True
-        else:
-            hasMinTimedOut = False
-
-        if timeDiff > self._dirty_max_timeout:
-            hasMaxTimedOut = True
-        else:
-            hasMaxTimedOut = False
-
-        if self.dirty_hits > self.dirty_flush_counter:
-            countLimitReached = True
-        else:
-            countLimitReached = False
-
-        # THIS IS THE MAIN DECISION ABOUT WHETHER TO FLUSH THE OBJECT TO DISK!!!
-        # if the minimum amount of time has passed __AND__ we meet a sensible condition for wanting to flush to disk
-        decision = hasMinTimedOut and (hasMaxTimedOut or countLimitReached)
-       
-        ## This gives us the ability to automatically turn off the automatic flushing externally if required
-        decision = decision and self._autoFlush
-
-        ## Can't autosave if a flush is in progress. Wait until next time.
-        if len(self._inprogressDict.keys()) != 0:
-            decision = False
-
-        if decision is True:
-            self._flushLastTime = timeNow
-            self.dirty_hits = 0
-
-        return decision
 
     def _getObjects(self):
         logger.debug("_getObjects")
@@ -627,14 +525,12 @@ class Registry(object):
                     del self._objects[getattr(obj, _reg_id_str)]
             except Exception as err:
                 pass
-            pass
         except Exception as err:
             raise err
 
     def __reg_remove(self, obj, auto_removed=0):
 
         logger.debug("_reg_remove")
-        u_id = self.find(obj)
 
         obj_id = id(obj)
 
@@ -779,8 +675,6 @@ class Registry(object):
                 raise RegistryKeyError("Read: The object #%i in registry '%s' was deleted!" % (this_id, self.name))
             except InaccessibleObjectError as err:
                 raise RegistryKeyError("Read: The object #%i in registry '%s' could not be accessed - %s!" % (this_id, self.name, str(err)))
-            #finally:
-            #    pass
             for this_d in self.changed_ids.itervalues():
                 this_d.add(this_id)
         except (RepositoryError, RegistryAccessError, RegistryLockError, ObjectNotInRegistryError) as err:
@@ -788,8 +682,6 @@ class Registry(object):
         except Exception as err:
             logger.debug("Unknown read access Error: %s" % str(err))
             raise err
-        #finally:
-        #    pass
 
     def _write_access(self, _obj):
         """Obtain write access on a given object.
@@ -848,15 +740,11 @@ class Registry(object):
                         raise RegistryKeyError("Write: The object #%i in registry '%s' was deleted!" % (this_id, self.name))
                     except InaccessibleObjectError as err:
                         raise RegistryKeyError("Write: The object #%i in registry '%s' could not be accessed - %s!" % (this_id, self.name, str(err)))
-                    #finally:
-                    #    pass
                     for this_d in self.changed_ids.itervalues():
                         this_d.add(this_id)
                 obj._registry_locked = True
             except Exception as err:
                 raise err
-            #finally:
-            #    pass
 
         return True
 
@@ -956,8 +844,6 @@ class Registry(object):
     def shutdown(self):
         """Flush and disconnect the repository. Called from Repository_runtime.py """
         from Ganga.Utility.logging import getLogger
-#        self.shouldReleaseRun = False
-#        self.releaseThread.stop()
         logger = getLogger()
         logger.debug("Shutting Down Registry")
         logger.debug("shutdown")
@@ -972,15 +858,10 @@ class Registry(object):
                     self.metadata.shutdown()
             except Exception as err:
                 logger.debug("Exception on shutting down metadata repository '%s' registry: %s", self.name, str(err))
-            #finally:
-            #    pass
             try:
                 self.flush_all()
             except Exception as err:
                 logger.error("Exception on flushing '%s' registry: %s", self.name, str(err))
-                #raise err
-            #finally:
-            #    pass
             for obj in self._objects.values():
                 # locks are not guaranteed to survive repository shutdown
                 obj._registry_locked = False

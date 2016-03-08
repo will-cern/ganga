@@ -18,9 +18,9 @@ class PrepRegistry(Registry):
 
         super(PrepRegistry, self).__init__(name, doc, dirty_flush_counter, update_index_time, dirty_max_timeout, dirty_min_timeout)
 
-        self.releaseThread = threading.Thread(target=self.trackandRelease, args=())
-        self.releaseThread.daemon = True
-        self.releaseThread.start()
+        #self.releaseThread = threading.Thread(target=self.trackandRelease, args=())
+        #self.releaseThread.daemon = True
+        #self.releaseThread.start()
 
 
     def startup(self):
