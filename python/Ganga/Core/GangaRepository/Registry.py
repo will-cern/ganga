@@ -214,7 +214,7 @@ class RegistryFlusher(threading.Thread):
             # will try again in a while anyway.
             if self.registry._lock.acquire(blocking=False):
                 try:
-                    logger.debug('Auto-flushing', self.registry.name)
+                    logger.debug('Auto-flushing %s', self.registry.name)
                     self.registry.flush_all()
                 finally:
                     self.registry._lock.release()
