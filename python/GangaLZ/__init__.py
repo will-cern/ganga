@@ -13,4 +13,5 @@ def getEnvironment(config=None):
 def loadPlugins(config=None):
     logger.debug("Loading LZ Applications")
     import Lib.Applications
+    import Lib.RTHandlers
 
