@@ -173,13 +173,6 @@ def stop_ganga():
     # This should now be safe
     ShutdownManager._ganga_run_exitfuncs()
 
-    # Undo any manual editing of the config and revert to defaults
-    from Ganga.Utility.Config import allConfigs
-    for package in allConfigs.values():
-        package._user_handlers = []
-        package._session_handlers = []
-        package.revertToDefaultOptions()
-
     # Finished
     logger.info("Test Finished")
 

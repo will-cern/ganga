@@ -7,7 +7,7 @@ class TestSavannah15630(GangaUnitTest):
     def test_Savannah15630(self):
         from Ganga.GPI import Job, Executable, Local, LocalFile
 
-        from GangaTest.Framework.utils import sleep_until_completed
+        from Ganga.testlib.utils import sleep_until_completed
         j = Job()
         j.application = Executable(exe='touch', args=['out.dat'])
         j.backend = Local()

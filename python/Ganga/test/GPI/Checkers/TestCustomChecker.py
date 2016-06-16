@@ -11,7 +11,7 @@ class TestCustomChecker(GangaUnitTest):
     def setUp(self):
         super(TestCustomChecker, self).setUp()
         from Ganga.GPI import Job, CustomChecker
-        from GangaTest.Framework.utils import sleep_until_completed
+        from Ganga.testlib.utils import sleep_until_completed
         self.c = CustomChecker()
         self.j = None
         self.file_name_stdout = None

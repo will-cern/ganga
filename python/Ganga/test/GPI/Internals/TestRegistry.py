@@ -33,7 +33,7 @@ class HammerThread(threading.Thread):
         self.logger.info(str(self.id) + ' update_index(None) done!')
 
     def add(self):
-        from GangaTest.Lib.TestObjects import TestGangaObject  # This import is in here to avoid confusing nosetests
+        from Ganga.testlib.TestObjects import TestGangaObject  # This import is in here to avoid confusing nosetests
         self.logger.info('self.ref.keys before: %s' % self.reg.keys())
         objs = [TestGangaObject('HT%i' % self.id) for _ in range(self.rng.randint(1, 2))]
         self.logger.info(str(self.id) + ' add(%s)' % objs)

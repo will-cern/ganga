@@ -113,7 +113,7 @@ class HammerThread(threading.Thread):
         self.logger.info(str(self.id) + ' flush() done')
 
     def add(self):
-        from GangaTest.Lib.TestObjects import TestGangaObject  # This import is in here to avoid confusing nosetests
+        from Ganga.testlib.TestObjects import TestGangaObject  # This import is in here to avoid confusing nosetests
         objs = [TestGangaObject('HT%i' % (self.id)) for i in range(self.rng.randint(1, 2))]
         self.logger.info(str(self.id) + ' add(%s)' % objs)
         ids = self.repo.add(objs)

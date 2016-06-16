@@ -53,7 +53,7 @@ class TestSelect(GangaUnitTest):
         j=Job(splitter=ArgSplitter(args=job_names))
         j.submit()
         
-        from GangaTest.Framework.utils import sleep_until_completed
+        from Ganga.testlib.utils import sleep_until_completed
         sleep_until_completed(j, 60)
 
         assert j.status == "completed"

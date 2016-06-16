@@ -6,7 +6,7 @@ from Ganga.testlib.GangaUnitTest import GangaUnitTest
 class TestArgSplitter(GangaUnitTest):
     def testArgSplitter(self):
         from Ganga.GPI import Job, ArgSplitter
-        from GangaTest.Framework.utils import sleep_until_completed
+        from Ganga.testlib.utils import sleep_until_completed
 
         j = Job()
         j.splitter = ArgSplitter(args=[['1'], ['2'], ['3']])

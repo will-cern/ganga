@@ -8,7 +8,7 @@ class TestSavannah19059(GangaUnitTest):
         from Ganga.GPI import Executable, Job, Interactive, LocalFile
 
         import os.path
-        from GangaTest.Framework.utils import sleep_until_completed
+        from Ganga.testlib.utils import sleep_until_completed
 
         # Test if Interactive backend copies back sandbox
         app = Executable()

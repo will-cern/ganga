@@ -4,7 +4,7 @@ import os
 import tempfile
 
 
-from GangaTest.Framework.utils import file_contains, write_file
+from Ganga.testlib.utils import file_contains, write_file
 from Ganga.Lib.Mergers.Merger import findFilesToMerge
 
 from Ganga.testlib.GangaUnitTest import GangaUnitTest

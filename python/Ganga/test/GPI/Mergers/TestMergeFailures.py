@@ -4,7 +4,7 @@ import os
 
 import pytest
 
-from GangaTest.Framework.utils import sleep_until_state
+from Ganga.testlib.utils import sleep_until_state
 from Ganga.testlib.monitoring import run_until_completed, run_until_state
 from Ganga.GPIDev.Base.Proxy import getProxyClass
 

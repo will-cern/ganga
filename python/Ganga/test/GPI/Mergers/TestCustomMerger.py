@@ -5,7 +5,7 @@ import tempfile
 
 import pytest
 
-from GangaTest.Framework.utils import write_file
+from Ganga.testlib.utils import write_file
 from Ganga.GPIDev.Base.Proxy import getProxyClass
 from Ganga.GPIDev.Adapters.IPostProcessor import PostProcessException
 
