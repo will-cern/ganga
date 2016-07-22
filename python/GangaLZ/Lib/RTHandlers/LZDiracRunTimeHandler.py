@@ -25,9 +25,7 @@ class LZDiracRunTimeHandler(IRuntimeHandler):
     j.setName({name!r})
     j.setExecutable({executable!r}, {arguments!r}, {logfile!r})
     j.setInputSandbox({inputsandbox!s})
-    j.setOutputSandbox({outputsandbox!s})
-    j.setGenericParametricInput({parameters!s})
-    #j.setParameterSequence("arguments", {parameters!s}, addToWorkflow=True):
+    {parameters!s}
     
     # submit the job to dirac
     j.setPlatform( 'ANY' )
@@ -38,14 +36,15 @@ class LZDiracRunTimeHandler(IRuntimeHandler):
     def prepare(self, app, appsubconfig, appmasterconfig, jobmasterconfig):
 
         macro_name = os.path.basename(app.macro)
-        jobname = os.path.splitext(macro_name)[0] + "%s"
-        arguments = macro_name + " %s"
+        jobname = os.path.splitext(macro_name)[0] + "%(args)s"
+        arguments = macro_name + " %(args)s"
+        parameters = 'j.setParameterSequence("args", %s, addToWorkflow=True)' \
+                     % [str(i) for i in xrange(app.seed, app.seed + app.njobs)]
         dirac_script = LZDiracRunTimeHandler.dirac_script_template.format(name=jobname,
                                                                           executable=appsubconfig.exe.name,
                                                                           arguments=arguments,
                                                                           logfile="LUXSIM_output.log",
-                                                                          inputsandbox=[i.name for i in appsubconfig.inputbox],
-                                                                          outputsandbox=[],
-                                                                          parameters=range(app.seed, app.seed + app.njobs))
+                                                                          inputsandbox='##INPUT_SANDBOX##',
+                                                                          parameters=parameters)
 
         return StandardJobConfig(dirac_script, inputbox=appsubconfig.getSandboxFiles(), outputbox=[])
