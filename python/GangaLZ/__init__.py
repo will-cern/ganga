@@ -14,4 +14,5 @@ def loadPlugins(config=None):
     logger.debug("Loading LZ Applications")
     import Lib.Applications
     import Lib.RTHandlers
-
+    import Lib.Tasks
+    import Lib.PostProcessors

@@ -6,13 +6,16 @@
 import os
 import logging
 from textwrap import dedent
+from git import Git
 
 from Ganga.GPIDev.Adapters.IApplication import IApplication
 from Ganga.GPIDev.Adapters.StandardJobConfig import StandardJobConfig
 from Ganga.GPIDev.Schema import Schema, Version, SimpleItem
 from Ganga.GPIDev.Lib.File.FileBuffer import FileBuffer
-logger = logging.getLogger(__name__)
+from Ganga.Utility.Config import getConfig
 
+logger = logging.getLogger(__name__)
+config = getConfig('Configuration')
 
 class LZApp(IApplication):
 
@@ -21,11 +24,12 @@ class LZApp(IApplication):
     state. 
     """
     _schema = Schema(Version(0, 0), {
-        'luxsim_version': SimpleItem(defvalue='3.7.0', typelist=[str]),
+        'luxsim_version': SimpleItem(defvalue='3.7.0', typelist=[basestring]),
         'g4_version':SimpleItem(defvalue='4.9.5.p02', typelist=[str]),
         'libnest_version': SimpleItem(defvalue='2.11.0', typelist=[str]),
-        'reduction_version':SimpleItem(defvalue='3.10.0', typelist=[str]),
-        'macro':SimpleItem(defvalue='/home/hep/arichard/git/ganga/macroTemplate.mac', typelist=[str]),
+        'reduction_version':SimpleItem(defvalue='3.10.0', typelist=[basestring]),
+        'tag':SimpleItem(defvalue='2.0.0', typelist=[basestring]),
+        'macro':SimpleItem(defvalue='/home/hep/arichard/git/ganga/macroTemplate.mac', typelist=[basestring]),
         'njobs':SimpleItem(defvalue=3, typelist=[int]),
         'nevents':SimpleItem(defvalue=100000, typelist=[int]),
         'seed':SimpleItem(defvalue=9000000, typelist=[int]),
@@ -87,16 +91,30 @@ class LZApp(IApplication):
                                                        reduction_version=self.reduction_version),
                                 executable=True)
         
-        with open(self.macro, 'rb') as original_macro:
-            macro = FileBuffer(os.path.basename(self.macro), original_macro)
-            macro += dedent("""
+
+
+        git_dir = os.path.join(config['gangadir'], 'LZGit', 'TDRAnalysis')
+        if not os.path.isdir(git_dir):
+            Git().clone('git@lz-git.ua.edu:sim/TDRAnalysis.git', git_dir)
+        else:
+            Git(git_dir).fetch('origin')
+
+        Git(git_dir).checkout(self.tag)
+        logger.warning("Using git dir %s and macro %s", git_dir, self.macro)
+        
+        macro = os.path.join(git_dir, self.macro)
+        if not os.path.isfile(macro):
+            logger.warn("Macro file '%s' doesn't exist", macro)
+        with open(macro, 'rb') as m:
+            macro_buffer = FileBuffer(os.path.basename(macro), m)
+            macro_buffer += dedent("""
             /control/getEnv SEED
             /LUXSim/randomSeed {SEED}
             /LUXSim/beamOn %s
             exit
             """ % self.nevents)
 
-        return (None, StandardJobConfig(exe=run_script, inputbox=[macro]))
+        return (None, StandardJobConfig(exe=run_script, inputbox=[macro_buffer]))
 
 #\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\#
 
