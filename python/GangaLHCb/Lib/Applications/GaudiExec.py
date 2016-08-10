@@ -186,7 +186,7 @@ class GaudiExec(IPrepareApp):
             for opts_file in all_opts_files:
                 if isinstance(opts_file, LocalFile):
                     self.copyIntoPrepDir(path.join( opts_file.localDir, path.basename(opts_file.namePattern) ))
-                elif isinstance(opts_file, DiracFile):
+                elif isinstance(opts_file, (DiracFile, MassStorageFile)):
                     # NB safe to put it here as should have expressly setup a path for this job by now.
                     # We cannot _not_ place this here based upon the backend.
                     # Always have to put it here regardless of if we're on DIRAC or Local so prepared job can be copied.
