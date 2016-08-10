@@ -13,8 +13,10 @@ from Ganga.GPIDev.Schema import Version
 
 from Ganga.Utility.Config import getConfig
 
-from Ganga.GPIDev.Lib.File import File
-from Ganga.GPIDev.Lib.File import ShareDir
+from Ganga.GPIDev.Lib.File.File import File, ShareDir
+from Ganga.GPIDev.Lib.File.LocalFile import LocalFile
+from Ganga.GPIDev.Lib.File.MassStorageFile import MassStorageFile
+
 from Ganga.Core import ApplicationConfigurationError
 from Ganga.Core import ApplicationPrepareError
 
@@ -25,7 +27,8 @@ from Ganga.GPIDev.Base.Objects import _getName
 from Ganga.Utility.files import expandfilename
 
 from GangaDirac.Lib.Files.DiracFile import DiracFile
-from Ganga.GPIDev.Lib.File import LocalFile
+
+from os import path
 
 logger = getLogger()
 
@@ -76,7 +79,8 @@ class Im3ShapeApp(IPrepareApp):
 
     def prepare(self, force=False):
         """
-        This prepares the Im3ShapeApp application and copies any LocalFile objects which are allocated to: im3_location, ini_location and blacklist into the prepared sandbox to be shipped to the WN
+        This prepares the Im3ShapeApp application and copies any LocalFile objects which are allocated to:
+                im3_location, ini_location and blacklist into the prepared sandbox to be shipped to the WN
         Args:
             force (bool): Should force the prepare step to run
         """
@@ -95,11 +99,11 @@ class Im3ShapeApp(IPrepareApp):
             # if the app is associated with a persisted object
             self.checkPreparedHasParent(self)
             for file_ in [self.ini_location, self.im3_location, self.blacklist]:
+                # We know we can/need/want to copy all LocalFile objects into the sharedDir
                 if isinstance(file_, LocalFile):
-                    self.copyIntoPrepDir(file_.namePattern)
-                assert type(file_) in [LocalFile, DiracFile]
-            # return
-            # [os.path.join(self.is_prepared.name,os.path.basename(send_to_sharedir))]
+                    self.copyIntoPrepDir(path.join(file_.localDir, file_.namePattern))
+                assert type(file_) in [LocalFile, DiracFile, MassStorageFile]
+                ## If the job is on the Local/Batch system it's the responsibility of the RTHandler to get the file to the sharedDir ahead of submit
             self.post_prepare()
 
         except Exception as err:
@@ -113,6 +117,18 @@ class Im3ShapeApp(IPrepareApp):
         """
         This is a null-op effecitvely, we may add something here in the future but this function is stub
         This is required so that the job will submit
+        Args:
+            masterappconfig (unknown): This is the result of the master_job.application.configure() step
         """
+
+        logger.debug("Check that all input DiracFile have been uploaded as DiracFile")
+        for attr in ['im3_location', 'ini_location', 'blacklist']:
+            this_file = getattr(self, attr)
+            if isinstance(this_file, DiracFile):
+                this_lfn = this_file.lfn
+                assert this_lfn != ""
+            elif isinstance(this_file, LocalFile):
+                assert path.isfile(path.join(this_file.localDir, this_file.namePattern))
+
         return (None, None)
 
