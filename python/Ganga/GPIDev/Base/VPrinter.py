@@ -17,7 +17,7 @@ logger = getLogger()
 
 def quoteValue(value, interactive=False):
     """A quoting function. Used to get consistent formatting"""
-    if isType(value, str):
+    if isType(value, basestring):
         # If it's a string then use `repr` for the quoting
         if interactive is True:
             return str(value)

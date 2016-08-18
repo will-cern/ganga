@@ -1608,7 +1608,7 @@ class Job(GangaObject):
         # notify monitoring-services
         self.monitorRollbackToNew_hook()
 
-        self.getInputWorkspace().remove(preserve_top=True)
+#        self.getInputWorkspace().remove(preserve_top=True)
         self.getOutputWorkspace().remove(preserve_top=True)
         # notify subjobs
         for sj in self.subjobs:
