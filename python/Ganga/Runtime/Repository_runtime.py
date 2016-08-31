@@ -103,6 +103,12 @@ def bootstrap_getreg():
     def prep_filter(x, y):
         if x.name == 'prep':
             return -1
+        if y.name == 'prep':
+            return 1
+        if x.name == 'lztasks':
+            return 1
+        if y.name == 'lztasks':
+            return -1
         return 1
 
     return [registry for registry in sorted(getRegistries(), prep_filter)]
@@ -128,6 +134,9 @@ def bootstrap():
             continue
         if not hasattr(registry, 'type'):
             registry.type = config["repositorytype"]
+        if registry.__class__.__name__ == "LZTaskRegistry":
+            logger.warning("GOT THE LZ TASK REGISTRY")
+            registry.type = "TransientSQLite"
         if not hasattr(registry, 'location'):
             registry.location = getLocalRoot()
         logger.debug("Registry: %s" % registry.name)

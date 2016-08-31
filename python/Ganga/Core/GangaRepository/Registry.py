@@ -97,6 +97,9 @@ def makeRepository(registry):
     elif registry.type in ["SQLite"]:
         from Ganga.Core.GangaRepository.GangaRepositorySQLite import GangaRepositorySQLite
         return GangaRepositorySQLite(registry)
+    elif registry.type in ["TransientSQLite"]:
+        from Ganga.Core.GangaRepository.GangaRepositoryTransientSQLite import GangaRepositoryTransientSQLite
+        return GangaRepositoryTransientSQLite(registry)
     elif registry.type in ["Transient"]:
         from Ganga.Core.GangaRepository.GangaRepository import GangaRepository
         return GangaRepository(registry)
@@ -290,7 +293,7 @@ class Registry(object):
         self._parent = None
 
         self.repository = None
-        self._objects = None
+        self._objects = {}
         self._incomplete_objects = None
 
         self.flush_thread = None

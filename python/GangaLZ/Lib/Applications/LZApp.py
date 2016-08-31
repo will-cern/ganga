@@ -33,6 +33,7 @@ class LZApp(IApplication):
         'njobs':SimpleItem(defvalue=3, typelist=[int]),
         'nevents':SimpleItem(defvalue=100000, typelist=[int]),
         'seed':SimpleItem(defvalue=9000000, typelist=[int]),
+        'requestid':SimpleItem(defvalue='None', typelist=[basestring]),
     })
     _category = 'applications'
 
@@ -123,7 +124,7 @@ class LZApp(IApplication):
 from Ganga.GPIDev.Adapters.ApplicationRuntimeHandlers import allHandlers
 from GangaLZ.Lib.RTHandlers.LZDiracRunTimeHandler import LZDiracRunTimeHandler
 
-allHandlers.add('LZApp', 'Dirac', LZDiracRunTimeHandler)
+allHandlers.add('LZApp', 'LZDirac', LZDiracRunTimeHandler)
 
 #\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\#
 
