@@ -1,4 +1,5 @@
 from GangaDirac.Lib.Backends.DiracBase import DiracBase
+from GangaDirac.Lib.Utilities.DiracUtilities import execute
 
 class LZDirac(DiracBase):
 
