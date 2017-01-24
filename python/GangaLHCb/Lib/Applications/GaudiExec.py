@@ -134,6 +134,7 @@ class GaudiExec(IPrepareApp):
         'platform' :    SimpleItem(defvalue='x86_64-slc6-gcc49-opt', typelist=[str], doc='Platform the application was built for'),
         'extraOpts':    SimpleItem(defvalue='', typelist=[str], doc='An additional string which is to be added to \'options\' when submitting the job'),
         'extraArgs':    SimpleItem(defvalue=[], typelist=[list], sequence=1, doc='Extra runtime arguments which are passed to the code running on the WN'),
+        'preBuiltTarget': GangaFileItem(defvalue=None, doc='This is an optional path which points to a given pre-build GaudiExec target. This is copied to the shared dir and NOT cleaned up after prepare has finished.'),
 
         # Prepared job object
         'is_prepared':  SimpleItem(defvalue=None, strict_sequence=0, visitable=1, copyable=1, hidden=0, typelist=[None, ShareDir], protected=0, comparable=1,
@@ -207,7 +208,10 @@ class GaudiExec(IPrepareApp):
         self.is_prepared = ShareDir()
         logger.info('Created shared directory: %s' % (self.is_prepared.name))
 
-        this_build_target = self.buildGangaTarget()
+        if self.preBuiltTarget:
+            this_build_target = self.preBuiltTarget
+        else:
+            this_build_target = self.buildGangaTarget()
 
         try:
             # copy any 'preparable' objects into the shared directory
@@ -235,7 +239,8 @@ class GaudiExec(IPrepareApp):
             self.unprepare()
             raise
 
-        self.cleanGangaTargetArea(this_build_target)
+        if not self.preBuiltTarget:
+            self.cleanGangaTargetArea(this_build_target)
 
         return 1
 
