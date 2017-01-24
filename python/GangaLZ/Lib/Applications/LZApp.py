@@ -37,7 +37,7 @@ class LZApp(IApplication):
     })
     _category = 'applications'
 
-    runscript = dedent(r"""    
+    runscript = dedent(r"""
     #!/bin/bash
     #Prepare some variables based on the inputs
     MACRO_FILE=$1
@@ -80,8 +80,8 @@ class LZApp(IApplication):
     OUTPUT_REDUCED_FILE=${{OUTPUT_ROOT_FILE/".root"/"_analysis_tree.root"}}
     $CONVERTER_EXE $OUTPUT_DIR/$OUTPUT_ROOT_FILE $OUTPUT_DIR/$OUTPUT_REDUCED_FILE
     
-    dirac-dms-add-file $BIGROOT_STORE_PATH/$OUTPUT_ROOT_FILE $OUTPUT_DIR/$OUTPUT_ROOT_FILE $DATA_STORE_SE
-    dirac-dms-add-file $REDUCED_STORE_PATH/$OUTPUT_REDUCED_FILE $OUTPUT_DIR/$OUTPUT_REDUCED_FILE $DATA_STORE_SE
+    #dirac-dms-add-file $BIGROOT_STORE_PATH/$OUTPUT_ROOT_FILE $OUTPUT_DIR/$OUTPUT_ROOT_FILE $DATA_STORE_SE
+    #dirac-dms-add-file $REDUCED_STORE_PATH/$OUTPUT_REDUCED_FILE $OUTPUT_DIR/$OUTPUT_REDUCED_FILE $DATA_STORE_SE
     """).lstrip()
 
     def configure(self, master_appconfig):
