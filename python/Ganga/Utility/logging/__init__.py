@@ -59,10 +59,11 @@ requires_shutdown = False
 private_logger = None  # private logger of this module
 
 # main logger corresponds to the root of the hierarchy
-main_logger = logging.getLogger()
-
+main_logger = logging.getLogger("Ganga")
+main_logger.addHandler(logging.StreamHandler())
 # this is the handler used to print on screen directly
-direct_screen_handler = main_logger.handlers[0]  # get default StreamHandler
+direct_screen_handler = main_logger.handlers[0]
+
 
 # if defined this is the handler used for caching background messages at
 # interactive prompt
