@@ -168,10 +168,25 @@ class DiracBase(IBackend):
 
         idlist = result
         if type(idlist) is list:
-            return self._setup_bulk_subjobs(idlist, dirac_script)
+            return self._bulksubjobs(idlist)
 
         self.id = idlist
         return type(self.id) == int
+
+    def _bulksubjobs(self, idlist):
+        master_job = self.getJobObject()
+        master_job.subjobs = []
+        for i, idnum in enumerate(idlist):
+            j = Job()
+            j.copyFrom(master_job)
+            j.splitter = None
+            j.backend.id = idnum
+            j.id = i
+            j.status = 'submitted'
+            j.time.timenow('submitted')
+            master_job.subjobs.append(j)
+        return True
+
 
     def _addition_sandbox_content(self, subjobconfig):
         '''any additional files that should be sent to dirac
