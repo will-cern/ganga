@@ -25,6 +25,7 @@ class LZDiracRunTimeHandler(IRuntimeHandler):
     j.setName({name!r})
     j.setExecutable({executable!r}, {arguments!r}, {logfile!r})
     j.setInputSandbox({inputsandbox!s})
+    j.setOutputData({files!r}, {se!r}, {path!r})
     {parameters!s}
     
     # submit the job to dirac
@@ -45,6 +46,9 @@ class LZDiracRunTimeHandler(IRuntimeHandler):
                                                                           arguments=arguments,
                                                                           logfile="LUXSIM_output.log",
                                                                           inputsandbox='##INPUT_SANDBOX##',
-                                                                          parameters=parameters)
+                                                                          parameters=parameters, 
+                                                                          files='*.root',
+                                                                          se='UKI-LT2-IC-HEP-disk',
+                                                                          path=app.requestid)
 
         return StandardJobConfig(dirac_script, inputbox=appsubconfig.getSandboxFiles(), outputbox=[])
