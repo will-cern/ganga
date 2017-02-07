@@ -26,8 +26,8 @@ class LZApp(IApplication):
     _schema = Schema(Version(0, 0), {
         'luxsim_version': SimpleItem(defvalue='3.7.0', typelist=[basestring]),
         'g4_version':SimpleItem(defvalue='4.9.5.p02', typelist=[str]),
-        'libnest_version': SimpleItem(defvalue='2.11.0', typelist=[str]),
-        'reduction_version':SimpleItem(defvalue='3.10.0', typelist=[basestring]),
+        'libnest_version': SimpleItem(defvalue='3.0.2', typelist=[str]),
+        'reduction_version':SimpleItem(defvalue='3.15.0', typelist=[basestring]),
         'tag':SimpleItem(defvalue='2.0.0', typelist=[basestring]),
         'macro':SimpleItem(defvalue='/home/hep/arichard/git/ganga/macroTemplate.mac', typelist=[basestring]),
         'njobs':SimpleItem(defvalue=3, typelist=[int]),
