@@ -29,7 +29,7 @@ $APP_DIR/${app}Executable $OUTPUT_DIR/$MACRO_FILE
 # after macro has run, rootify
 cd $OUTPUT_DIR
 source $ROOT_DIR/bin/thisroot.sh
-$APP_DIR/tools/LUXRootReader $OUTPUT_FILE
+`ls $APP_DIR/tools/*RootReader` $OUTPUT_FILE
 OUTPUT_ROOT_FILE=$(basename $OUTPUT_FILE .bin).root
 
 # reduce and then copy both to our central storage.
