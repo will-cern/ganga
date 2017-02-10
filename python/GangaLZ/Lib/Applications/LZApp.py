@@ -20,7 +20,16 @@ config = getConfig('Configuration')
 
 with open(os.path.join(os.path.dirname(__file__),
                        'LZ_ApplicationScript_template.sh'), 'r') as file_:
-        runscript_template = string.Template(file_.read())
+    runscript_template = string.Template(file_.read())
+macro_extras = string.Template(dedent("""
+    /control/getEnv SEED
+    /$app/randomSeed {SEED}
+    /$app/beamOn $nevents
+    exit
+    """))
+
+macro_app_map = {'LUXSim': 'LUXSim',
+                 'BACCARAT': 'Bacc'}
 
 class LZApp(IApplication):
 
@@ -65,19 +74,16 @@ class LZApp(IApplication):
             Git(git_dir).fetch('origin')
 
         Git(git_dir).checkout(self.tag)
-        logger.warning("Using git dir %s and macro %s", git_dir, self.macro)
+        logger.info("Using git dir %s and macro %s", git_dir, self.macro)
         
         macro = os.path.join(git_dir, self.macro)
         if not os.path.isfile(macro):
-            logger.warn("Macro file '%s' doesn't exist", macro)
+            logger.error("Macro file '%s' doesn't exist", macro)
+            return (None, StandardJobConfig(exe=run_script))
         with open(macro, 'rb') as m:
             macro_buffer = FileBuffer(os.path.basename(macro), m)
-            macro_buffer += dedent("""
-            /control/getEnv SEED
-            /LUXSim/randomSeed {SEED}
-            /LUXSim/beamOn %s
-            exit
-            """ % self.nevents)
+            macro_buffer += macro_extras.safe_substitute(app=macro_app_map.get(self.app),
+                                                         nevents=self.nevents)
 
         return (None, StandardJobConfig(exe=run_script, inputbox=[macro_buffer]))
 
