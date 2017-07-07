@@ -135,6 +135,11 @@ mv input.py.new input.py
 echo "------>  Running athena preJobO.py $MY_ATHENA_OPTIONS input.py..."
 athena preJobO.py $MY_ATHENA_OPTIONS input.py
 
+if[ $? -ne 0 ]; then
+   echo "-----> Athena did not exit successfully ... printing environment for debugging ... "
+   env
+fi
+
 echo "------>  Staging output to $MY_OUTPUT_LOCATION..."
 OUTPUT_LOCATION=$MY_OUTPUT_LOCATION
 # check for EOS use
